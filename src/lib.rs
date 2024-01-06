@@ -9,6 +9,7 @@ use windows::{
 pub struct Overlay {
     window_rect: RECT,
     draw_rect_list: Arc<RwLock<Vec<RECT>>>,
+    refresh_interval_ms: u64,
     draw_bottom_line_flag: bool,
 }
 
@@ -19,6 +20,7 @@ impl Overlay {
         right: i32,
         bottom: i32,
         draw_rect_list: Arc<RwLock<Vec<RECT>>>,
+        refresh_interval_ms: u64,
         draw_bottom_line_flag: bool,
     ) -> Self {
         Overlay {
@@ -29,6 +31,7 @@ impl Overlay {
                 bottom,
             },
             draw_rect_list,
+            refresh_interval_ms,
             draw_bottom_line_flag,
         }
     }
@@ -72,22 +75,23 @@ impl Overlay {
             let pen = CreatePen(PS_SOLID, 3, COLORREF(0xFF));
             SelectObject(hdc, pen);
 
-            let box_list = self.draw_rect_list.clone();
+            let draw_rect_list = self.draw_rect_list.clone();
             let refresh_rect = RECT {
                 left: 0,
                 top: 0,
                 right: window_width,
                 bottom: window_height,
             };
+            let refresh_interval_ms = self.refresh_interval_ms;
             let draw_bottom_line_flag = self.draw_bottom_line_flag;
             std::thread::spawn(move || loop {
                 FillRect(hdc, &refresh_rect, HBRUSH(0x0));
 
-                let box_list = {
-                    let box_list_lock = box_list.read().unwrap();
-                    box_list_lock.clone()
+                let draw_rect_list = {
+                    let draw_rect_list_lock = draw_rect_list.read().unwrap();
+                    draw_rect_list_lock.clone()
                 };
-                box_list.iter().for_each(|rect| {
+                draw_rect_list.iter().for_each(|rect| {
                     Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
 
                     if draw_bottom_line_flag {
@@ -97,7 +101,7 @@ impl Overlay {
                     }
                 });
 
-                std::thread::sleep(std::time::Duration::from_millis(1000 / 30));
+                std::thread::sleep(std::time::Duration::from_millis(refresh_interval_ms));
             });
 
             let mut message = MSG::default();
