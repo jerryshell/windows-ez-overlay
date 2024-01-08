@@ -7,10 +7,11 @@ use windows::{
 
 #[derive(Debug)]
 pub struct Overlay {
-    window_rect: RECT,
-    draw_rect_list: Arc<RwLock<Vec<RECT>>>,
-    refresh_interval_ms: u64,
-    draw_bottom_line_flag: bool,
+    pub window_rect: RECT,
+    pub draw_rect_list: Arc<RwLock<Vec<RECT>>>,
+    pub pen_width: i32,
+    pub refresh_interval_ms: u64,
+    pub draw_bottom_line_flag: bool,
 }
 
 impl Overlay {
@@ -31,6 +32,7 @@ impl Overlay {
                 bottom,
             },
             draw_rect_list,
+            pen_width: 1,
             refresh_interval_ms,
             draw_bottom_line_flag,
         }
@@ -72,7 +74,7 @@ impl Overlay {
             let bkcolor = GetBkColor(hdc);
             SetLayeredWindowAttributes(window, bkcolor, 0, LWA_COLORKEY)?;
 
-            let pen = CreatePen(PS_SOLID, 3, COLORREF(0xFF));
+            let pen = CreatePen(PS_SOLID, self.pen_width, COLORREF(0xFF));
             SelectObject(hdc, pen);
 
             let draw_rect_list = self.draw_rect_list.clone();
