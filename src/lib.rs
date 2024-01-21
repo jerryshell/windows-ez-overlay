@@ -87,6 +87,8 @@ impl Overlay {
             let refresh_interval_ms = self.refresh_interval_ms;
             let draw_bottom_line_flag = self.draw_bottom_line_flag;
             std::thread::spawn(move || loop {
+                let start = std::time::Instant::now();
+
                 FillRect(hdc, &refresh_rect, HBRUSH(0x0));
 
                 let draw_rect_list = {
@@ -103,7 +105,13 @@ impl Overlay {
                     }
                 });
 
-                std::thread::sleep(std::time::Duration::from_millis(refresh_interval_ms));
+                let delta = start.elapsed();
+                let delta_ms = delta.as_millis() as u64;
+                if refresh_interval_ms > delta_ms {
+                    std::thread::sleep(std::time::Duration::from_millis(
+                        refresh_interval_ms - delta_ms,
+                    ));
+                }
             });
 
             let mut message = MSG::default();
@@ -128,6 +136,69 @@ extern "system" fn wndproc(window: HWND, message: u32, wparam: WPARAM, lparam: L
                 LRESULT(0)
             }
             _ => DefWindowProcA(window, message, wparam, lparam),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::Arc;
+    use std::sync::RwLock;
+
+    #[test]
+    fn it_works() {
+        let refresh_interval_ms = 1000 / 60;
+
+        let rect_list = Arc::new(RwLock::new(vec![
+            RECT {
+                left: 0,
+                top: 0,
+                right: 10,
+                bottom: 10,
+            },
+            RECT {
+                left: 500,
+                top: 500,
+                right: 550,
+                bottom: 550,
+            },
+        ]));
+
+        {
+            let rect_list = rect_list.clone();
+            let mut overlay = Overlay::new(0, 0, 1920, 1080, rect_list, refresh_interval_ms, true);
+            std::thread::spawn(move || {
+                overlay.window_loop().unwrap();
+            });
+        }
+
+        let mut frame_count = 0;
+        loop {
+            let start = std::time::Instant::now();
+
+            {
+                let mut rect_list = rect_list.write().unwrap();
+                rect_list.iter_mut().for_each(|rect| {
+                    rect.left += 1;
+                    rect.top += 1;
+                    rect.right += 1;
+                    rect.bottom += 1;
+                });
+            }
+
+            let delta = start.elapsed();
+            let delta_ms = delta.as_millis() as u64;
+            if refresh_interval_ms > delta_ms {
+                std::thread::sleep(std::time::Duration::from_millis(
+                    refresh_interval_ms - delta_ms,
+                ));
+            }
+
+            frame_count += 1;
+            if frame_count >= 500 {
+                break;
+            }
         }
     }
 }

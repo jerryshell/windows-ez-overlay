@@ -24,7 +24,7 @@ let mut window_info = WINDOWINFO::default();
 GetWindowInfo(game_window, &mut window_info)?;
 
 // init ez-overlay using window_info and draw_rect_list
-let refresh_interval_ms: u64 = 1000 / 30;
+let refresh_interval_ms = 1000 / 60;
 let draw_rect_list_clone = Arc::clone(&draw_rect_list);
 std::thread::spawn(move || {
     let mut overlay = windows_ez_overlay::Overlay::new(
