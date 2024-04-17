@@ -96,12 +96,12 @@ impl Overlay {
                     draw_rect_list_lock.clone()
                 };
                 draw_rect_list.iter().for_each(|rect| {
-                    Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
+                    let _ = Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
 
                     if draw_bottom_line_flag {
-                        MoveToEx(hdc, refresh_rect.right / 2, refresh_rect.bottom, None);
+                        let _ = MoveToEx(hdc, refresh_rect.right / 2, refresh_rect.bottom, None);
                         let rect_width = rect.right - rect.left;
-                        LineTo(hdc, rect.left + rect_width / 2, rect.bottom);
+                        let _ = LineTo(hdc, rect.left + rect_width / 2, rect.bottom);
                     }
                 });
 
@@ -116,7 +116,7 @@ impl Overlay {
 
             let mut message = MSG::default();
             while GetMessageA(&mut message, None, 0, 0).into() {
-                TranslateMessage(&message);
+                let _ = TranslateMessage(&message);
                 DispatchMessageA(&message);
             }
         }
@@ -128,7 +128,7 @@ extern "system" fn wndproc(window: HWND, message: u32, wparam: WPARAM, lparam: L
     unsafe {
         match message {
             WM_PAINT => {
-                ValidateRect(window, None);
+                let _ = ValidateRect(window, None);
                 LRESULT(0)
             }
             WM_DESTROY => {

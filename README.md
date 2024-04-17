@@ -23,7 +23,7 @@ let game_window = FindWindowA(None, s!("AssaultCube"));
 let mut window_info = WINDOWINFO::default();
 GetWindowInfo(game_window, &mut window_info)?;
 
-// init ez-overlay using window_info and draw_rect_list
+// init ez-overlay with window_info and draw_rect_list
 let refresh_interval_ms = 1000 / 60;
 let draw_rect_list_clone = Arc::clone(&draw_rect_list);
 std::thread::spawn(move || {
@@ -41,6 +41,12 @@ std::thread::spawn(move || {
 
 // update draw_rect_list from here
 // ...
+```
+
+## Test
+
+```bash
+cargo t
 ```
 
 ## Example
