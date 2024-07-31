@@ -1,9 +1,26 @@
 use anyhow::Result;
-use std::sync::{Arc, RwLock};
+use std::{
+    ops::Deref,
+    sync::{Arc, RwLock},
+};
 use windows::{
     core::*,
     Win32::{Foundation::*, Graphics::Gdi::*, UI::WindowsAndMessaging::*},
 };
+
+#[derive(Clone)]
+struct HDCWrapper(HDC);
+
+impl Deref for HDCWrapper {
+    type Target = HDC;
+
+    fn deref(&self) -> &HDC {
+        &self.0
+    }
+}
+
+unsafe impl Send for HDCWrapper {}
+unsafe impl Sync for HDCWrapper {}
 
 #[derive(Debug)]
 pub struct Overlay {
@@ -69,7 +86,7 @@ impl Overlay {
                 None,
                 None,
                 None,
-            );
+            )?;
             let hdc = GetDC(window);
             let bkcolor = GetBkColor(hdc);
             SetLayeredWindowAttributes(window, bkcolor, 0, LWA_COLORKEY)?;
@@ -86,22 +103,24 @@ impl Overlay {
             };
             let refresh_interval_ms = self.refresh_interval_ms;
             let draw_bottom_line_flag = self.draw_bottom_line_flag;
+            let hdc = HDCWrapper(hdc);
             std::thread::spawn(move || loop {
                 let start = std::time::Instant::now();
 
-                FillRect(hdc, &refresh_rect, HBRUSH(0x0));
+                let hbr: HBRUSH = CreateSolidBrush(bkcolor);
+                FillRect(*hdc, &refresh_rect, hbr);
 
                 let draw_rect_list = {
                     let draw_rect_list_lock = draw_rect_list.read().unwrap();
                     draw_rect_list_lock.clone()
                 };
                 draw_rect_list.iter().for_each(|rect| {
-                    let _ = Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
+                    let _ = Rectangle(*hdc, rect.left, rect.top, rect.right, rect.bottom);
 
                     if draw_bottom_line_flag {
-                        let _ = MoveToEx(hdc, refresh_rect.right / 2, refresh_rect.bottom, None);
+                        let _ = MoveToEx(*hdc, refresh_rect.right / 2, refresh_rect.bottom, None);
                         let rect_width = rect.right - rect.left;
-                        let _ = LineTo(hdc, rect.left + rect_width / 2, rect.bottom);
+                        let _ = LineTo(*hdc, rect.left + rect_width / 2, rect.bottom);
                     }
                 });
 
