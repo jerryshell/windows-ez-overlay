@@ -9,7 +9,7 @@ The goal is to keep it simple and easy to use.
 1. Cargo.toml
 
 ```toml
-windows-ez-overlay = { git = "https://github.com/jerryshell/windows-ez-overlay.git" }
+windows-ez-overlay = { git = "https://github.com/jerryshell/windows-ez-overlay" }
 ```
 
 2. Rust code
