@@ -21,10 +21,10 @@ let draw_rect_list = Arc::new(RwLock::new(Vec::<RECT>::with_capacity(32)));
 // get target window info
 let game_window = FindWindowA(None, s!("AssaultCube"));
 let mut window_info = WINDOWINFO::default();
-GetWindowInfo(game_window, &mut window_info)?;
+GetWindowInfo(game_window, &mut window_info);
 
 // init ez-overlay with window_info and draw_rect_list
-let refresh_interval_ms = 1000 / 60;
+const FRAME_RATE: u64 = 60;
 let draw_rect_list_clone = Arc::clone(&draw_rect_list);
 std::thread::spawn(move || {
     let mut overlay = windows_ez_overlay::Overlay::new(
@@ -32,8 +32,8 @@ std::thread::spawn(move || {
         window_info.rcClient.top,
         window_info.rcClient.right,
         window_info.rcClient.bottom,
-        refresh_interval_ms,
         draw_rect_list_clone,
+        FRAME_RATE,
         true,
     );
     let _ = overlay.window_loop();
