@@ -4,8 +4,19 @@ use std::{
     sync::{Arc, RwLock},
 };
 use windows::{
-    core::*,
-    Win32::{Foundation::*, Graphics::Gdi::*, UI::WindowsAndMessaging::*},
+    core::s,
+    Win32::{
+        Foundation::{COLORREF, HWND, LPARAM, LRESULT, RECT, WPARAM},
+        Graphics::Gdi::{
+            CreatePen, CreateSolidBrush, FillRect, GetBkColor, GetDC, LineTo, MoveToEx, Rectangle,
+            SelectObject, HBRUSH, HDC, PS_SOLID,
+        },
+        UI::WindowsAndMessaging::{
+            CreateWindowExA, DefWindowProcA, DispatchMessageA, GetMessageA, RegisterClassA,
+            SetLayeredWindowAttributes, TranslateMessage, CS_HREDRAW, CS_VREDRAW, LWA_COLORKEY,
+            MSG, WNDCLASSA, WS_EX_LAYERED, WS_EX_TOPMOST, WS_EX_TRANSPARENT, WS_POPUP, WS_VISIBLE,
+        },
+    },
 };
 
 #[derive(Clone)]
@@ -144,19 +155,7 @@ impl Overlay {
 }
 
 extern "system" fn wndproc(window: HWND, message: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
-    unsafe {
-        match message {
-            WM_PAINT => {
-                let _ = ValidateRect(window, None);
-                LRESULT(0)
-            }
-            WM_DESTROY => {
-                PostQuitMessage(0);
-                LRESULT(0)
-            }
-            _ => DefWindowProcA(window, message, wparam, lparam),
-        }
-    }
+    unsafe { DefWindowProcA(window, message, wparam, lparam) }
 }
 
 #[cfg(test)]

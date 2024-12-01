@@ -6,7 +6,6 @@ edition = "2021"
 [dependencies]
 anyhow = "*"
 windows = { version = "*", features = [
-    "Win32_Foundation",
     "Win32_Graphics_Gdi",
     "Win32_UI_WindowsAndMessaging",
 ] }
