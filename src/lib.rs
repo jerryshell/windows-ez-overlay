@@ -2,6 +2,7 @@ use anyhow::Result;
 use std::{
     ops::Deref,
     sync::{Arc, RwLock},
+    time::{Duration, Instant},
 };
 use windows::{
     core::s,
@@ -38,7 +39,7 @@ pub struct Overlay {
     pub window_rect: RECT,
     pub draw_rect_list: Arc<RwLock<Vec<RECT>>>,
     pub pen_width: i32,
-    pub refresh_interval_ms: u64,
+    pub frame_rate: u64,
     pub draw_bottom_line_flag: bool,
 }
 
@@ -49,7 +50,7 @@ impl Overlay {
         right: i32,
         bottom: i32,
         draw_rect_list: Arc<RwLock<Vec<RECT>>>,
-        refresh_interval_ms: u64,
+        frame_rate: u64,
         draw_bottom_line_flag: bool,
     ) -> Self {
         Overlay {
@@ -61,7 +62,7 @@ impl Overlay {
             },
             draw_rect_list,
             pen_width: 1,
-            refresh_interval_ms,
+            frame_rate,
             draw_bottom_line_flag,
         }
     }
@@ -112,35 +113,33 @@ impl Overlay {
                 right: window_width,
                 bottom: window_height,
             };
-            let refresh_interval_ms = self.refresh_interval_ms;
             let draw_bottom_line_flag = self.draw_bottom_line_flag;
             let hdc = HDCWrapper(hdc);
-            std::thread::spawn(move || loop {
-                let start = std::time::Instant::now();
+            let tick_rate = Duration::from_millis(1000 / self.frame_rate);
+            std::thread::spawn(move || {
+                let mut last_tick = Instant::now();
+                loop {
+                    let hbr: HBRUSH = CreateSolidBrush(bkcolor);
+                    FillRect(*hdc, &refresh_rect, hbr);
 
-                let hbr: HBRUSH = CreateSolidBrush(bkcolor);
-                FillRect(*hdc, &refresh_rect, hbr);
+                    let draw_rect_list = {
+                        let draw_rect_list_lock = draw_rect_list.read().unwrap();
+                        draw_rect_list_lock.clone()
+                    };
+                    draw_rect_list.iter().for_each(|rect| {
+                        let _ = Rectangle(*hdc, rect.left, rect.top, rect.right, rect.bottom);
 
-                let draw_rect_list = {
-                    let draw_rect_list_lock = draw_rect_list.read().unwrap();
-                    draw_rect_list_lock.clone()
-                };
-                draw_rect_list.iter().for_each(|rect| {
-                    let _ = Rectangle(*hdc, rect.left, rect.top, rect.right, rect.bottom);
+                        if draw_bottom_line_flag {
+                            let _ =
+                                MoveToEx(*hdc, refresh_rect.right / 2, refresh_rect.bottom, None);
+                            let rect_width = rect.right - rect.left;
+                            let _ = LineTo(*hdc, rect.left + rect_width / 2, rect.bottom);
+                        }
+                    });
 
-                    if draw_bottom_line_flag {
-                        let _ = MoveToEx(*hdc, refresh_rect.right / 2, refresh_rect.bottom, None);
-                        let rect_width = rect.right - rect.left;
-                        let _ = LineTo(*hdc, rect.left + rect_width / 2, rect.bottom);
-                    }
-                });
-
-                let delta = start.elapsed();
-                let delta_ms = delta.as_millis() as u64;
-                if refresh_interval_ms > delta_ms {
-                    std::thread::sleep(std::time::Duration::from_millis(
-                        refresh_interval_ms - delta_ms,
-                    ));
+                    let timeout = tick_rate.saturating_sub(last_tick.elapsed());
+                    std::thread::sleep(timeout);
+                    last_tick = Instant::now();
                 }
             });
 
@@ -166,35 +165,35 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let refresh_interval_ms = 1000 / 60;
+        const FRAME_RATE: u64 = 60;
 
         let rect_list = Arc::new(RwLock::new(vec![
             RECT {
                 left: 0,
                 top: 0,
-                right: 10,
-                bottom: 10,
+                right: 100,
+                bottom: 100,
             },
             RECT {
-                left: 500,
-                top: 500,
-                right: 550,
-                bottom: 550,
+                left: 123,
+                top: 456,
+                right: 789,
+                bottom: 666,
             },
         ]));
 
         {
             let rect_list = rect_list.clone();
-            let mut overlay = Overlay::new(0, 0, 1920, 1080, rect_list, refresh_interval_ms, true);
+            let mut overlay = Overlay::new(0, 0, 1920, 1080, rect_list, FRAME_RATE, true);
             std::thread::spawn(move || {
                 overlay.window_loop().unwrap();
             });
         }
 
         let mut frame_count = 0;
+        let tick_rate = Duration::from_millis(1000 / FRAME_RATE);
+        let mut last_tick = Instant::now();
         loop {
-            let start = std::time::Instant::now();
-
             {
                 let mut rect_list = rect_list.write().unwrap();
                 rect_list.iter_mut().for_each(|rect| {
@@ -205,13 +204,9 @@ mod tests {
                 });
             }
 
-            let delta = start.elapsed();
-            let delta_ms = delta.as_millis() as u64;
-            if refresh_interval_ms > delta_ms {
-                std::thread::sleep(std::time::Duration::from_millis(
-                    refresh_interval_ms - delta_ms,
-                ));
-            }
+            let timeout = tick_rate.saturating_sub(last_tick.elapsed());
+            std::thread::sleep(timeout);
+            last_tick = Instant::now();
 
             frame_count += 1;
             if frame_count >= 500 {
