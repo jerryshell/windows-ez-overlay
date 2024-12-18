@@ -1,4 +1,3 @@
-use anyhow::Result;
 use std::{
     ops::Deref,
     sync::{Arc, RwLock},
@@ -19,6 +18,21 @@ use windows::{
         },
     },
 };
+
+#[derive(Debug)]
+pub enum OverlayError {
+    RegisterClassA,
+    CreateWindowExA,
+    SetLayeredWindowAttributes,
+}
+
+impl std::fmt::Display for OverlayError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl std::error::Error for OverlayError {}
 
 #[derive(Clone)]
 struct HDCWrapper(HDC);
@@ -67,7 +81,7 @@ impl Overlay {
         }
     }
 
-    pub fn window_loop(&mut self) -> Result<()> {
+    pub fn window_loop(&mut self) -> Result<(), OverlayError> {
         unsafe {
             let window_class_name = s!("ezOverlay");
 
@@ -79,7 +93,7 @@ impl Overlay {
             };
             let atom = RegisterClassA(&window_class);
             if atom == 0 {
-                return Err(anyhow::anyhow!("err RegisterClassA"));
+                return Err(OverlayError::RegisterClassA);
             }
 
             let window_width = self.window_rect.right - self.window_rect.left;
@@ -98,10 +112,12 @@ impl Overlay {
                 None,
                 None,
                 None,
-            )?;
+            )
+            .map_err(|_| OverlayError::CreateWindowExA)?;
             let hdc = GetDC(window);
             let bkcolor = GetBkColor(hdc);
-            SetLayeredWindowAttributes(window, bkcolor, 0, LWA_COLORKEY)?;
+            SetLayeredWindowAttributes(window, bkcolor, 0, LWA_COLORKEY)
+                .map_err(|_| OverlayError::SetLayeredWindowAttributes)?;
 
             let pen = CreatePen(PS_SOLID, self.pen_width, COLORREF(0xFF));
             SelectObject(hdc, pen);

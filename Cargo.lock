@@ -3,12 +3,6 @@
 version = 4
 
 [[package]]
-name = "anyhow"
-version = "1.0.93"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c95c10ba0b00a02636238b814946408b1322d5ac4760326e6fb8ec956d85775"
-
-[[package]]
 name = "proc-macro2"
 version = "1.0.92"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -70,7 +64,6 @@ dependencies = [
 name = "windows-ez-overlay"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "windows",
 ]
 
