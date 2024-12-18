@@ -1,3 +1,4 @@
+use crate::{error, hdc_wrapper};
 use std::{
     sync::{Arc, RwLock},
     thread,
@@ -18,8 +19,6 @@ use windows::{
         },
     },
 };
-
-use crate::{error, hdc_wrapper};
 
 #[derive(Debug)]
 pub struct Overlay {

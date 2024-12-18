@@ -39,20 +39,24 @@ std::thread::spawn(move || {
     let _ = overlay.window_loop();
 });
 
-// update draw_rect_list from here
-// ...
+// ... do your stuff ...
+
+{
+    let mut draw_rect_list = draw_rect_list.write().unwrap();
+    // update draw_rect_list from here
+}
 ```
 
 ## Test
 
 ```bash
-cargo t
+cargo test
 ```
 
 ## Example
 
 [ac-esp | AssaultCube ESP DLL with Rust 🦀](https://github.com/jerryshell/ac-esp)
 
-## LICENSE
+## License
 
-[GNU Affero General Public License v3.0](https://choosealicense.com/licenses/agpl-3.0/)
+[GNU Affero General Public License v3.0](LICENSE)
