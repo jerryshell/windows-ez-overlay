@@ -19,7 +19,7 @@ fn overlay_test() {
         let rect_list = rect_list.clone();
         std::thread::spawn(move || {
             let mut overlay =
-                windows_ez_overlay::Window::new(0, 0, 1920, 1080, rect_list, true).unwrap();
+                windows_ez_overlay::Overlay::new(0, 0, 1920, 1080, rect_list, true).unwrap();
             overlay.run().unwrap();
         });
     }

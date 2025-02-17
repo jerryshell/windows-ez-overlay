@@ -6,7 +6,7 @@ use windows::{
     Win32::UI::WindowsAndMessaging::*,
 };
 
-pub struct Window {
+pub struct Overlay {
     handle: HWND,
 
     window_rect: RECT,
@@ -22,7 +22,7 @@ pub struct Window {
     visible: bool,
 }
 
-impl Window {
+impl Overlay {
     pub fn new(
         left: i32,
         top: i32,
@@ -34,7 +34,7 @@ impl Window {
         let factory = create_factory()?;
         let style = create_style(&factory)?;
 
-        Ok(Window {
+        Ok(Overlay {
             handle: Default::default(),
             window_rect: RECT {
                 left,
