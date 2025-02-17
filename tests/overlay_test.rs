@@ -1,13 +1,5 @@
-use windows::Win32::System::Com::{CoInitializeEx, COINIT_MULTITHREADED};
-
 #[test]
 fn overlay_test() {
-    unsafe {
-        CoInitializeEx(None, COINIT_MULTITHREADED).ok().unwrap();
-    }
-
-    const FRAME_RATE: u64 = 60;
-
     let rect_list = std::sync::Arc::new(std::sync::RwLock::new(vec![
         windows::Win32::Foundation::RECT {
             left: 0,
@@ -32,8 +24,10 @@ fn overlay_test() {
         });
     }
 
+    const FRAME_RATE: u64 = 60;
+    const TICK_RATE: std::time::Duration = std::time::Duration::from_millis(1000 / FRAME_RATE);
+
     let mut frame_count = 0;
-    let tick_rate = std::time::Duration::from_millis(1000 / FRAME_RATE);
     let mut last_tick = std::time::Instant::now();
     loop {
         {
@@ -46,8 +40,7 @@ fn overlay_test() {
             });
         }
 
-        let timeout = tick_rate.saturating_sub(last_tick.elapsed());
-        std::thread::sleep(timeout);
+        std::thread::sleep(TICK_RATE.saturating_sub(last_tick.elapsed()));
         last_tick = std::time::Instant::now();
 
         frame_count += 1;

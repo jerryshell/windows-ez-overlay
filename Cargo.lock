@@ -74,7 +74,6 @@ name = "windows-ez-overlay"
 version = "0.2.0"
 dependencies = [
  "windows",
- "windows-numerics",
 ]
 
 [[package]]

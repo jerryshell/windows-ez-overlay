@@ -5,7 +5,6 @@ use windows::{
     Win32::Graphics::Dxgi::Common::*, Win32::Graphics::Dxgi::*, Win32::Graphics::Gdi::*,
     Win32::UI::WindowsAndMessaging::*,
 };
-use windows_numerics::*;
 
 pub struct Window {
     handle: HWND,
@@ -87,6 +86,8 @@ impl Window {
 
             debug_assert!(!handle.is_invalid());
             debug_assert!(handle == self.handle);
+
+            SetLayeredWindowAttributes(handle, COLORREF(0), 0, LWA_COLORKEY)?;
 
             let mut message = MSG::default();
             loop {
@@ -182,7 +183,7 @@ impl Window {
                     },
                     brush,
                     2.0,
-                    None,
+                    &self.style,
                 );
                 if self.draw_bottom_line_flag {
                     let rect_width = rect.right - rect.left;
@@ -275,7 +276,7 @@ fn create_brush(target: &ID2D1DeviceContext) -> Result<ID2D1SolidColorBrush> {
 
     let properties = D2D1_BRUSH_PROPERTIES {
         opacity: 0.8,
-        transform: Matrix3x2::identity(),
+        ..Default::default()
     };
 
     unsafe { target.CreateSolidColorBrush(&color, Some(&properties)) }
@@ -389,7 +390,7 @@ fn create_swapchain(device: &ID3D11Device, window: HWND) -> Result<IDXGISwapChai
         },
         BufferUsage: DXGI_USAGE_RENDER_TARGET_OUTPUT,
         BufferCount: 2,
-        SwapEffect: DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL,
+        SwapEffect: DXGI_SWAP_EFFECT_DISCARD,
         ..Default::default()
     };
 

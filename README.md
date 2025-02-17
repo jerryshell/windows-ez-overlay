@@ -22,7 +22,6 @@ let mut window_info = WINDOWINFO::default();
 GetWindowInfo(game_window, &mut window_info);
 
 // init ez-overlay with window_info and draw_rect_list
-const FRAME_RATE: u64 = 60;
 let draw_rect_list_clone = Arc::clone(&draw_rect_list);
 std::thread::spawn(move || {
     let mut overlay = windows_ez_overlay::Overlay::new(
@@ -31,10 +30,9 @@ std::thread::spawn(move || {
         window_info.rcClient.right,
         window_info.rcClient.bottom,
         draw_rect_list_clone,
-        FRAME_RATE,
         true,
-    );
-    let _ = overlay.window_loop();
+    ).unwrap();
+    overlay.run().unwrap();
 });
 
 // ... do your stuff ...
