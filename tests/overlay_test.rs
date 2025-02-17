@@ -1,5 +1,11 @@
+use windows::Win32::System::Com::{CoInitializeEx, COINIT_MULTITHREADED};
+
 #[test]
 fn overlay_test() {
+    unsafe {
+        CoInitializeEx(None, COINIT_MULTITHREADED).ok().unwrap();
+    }
+
     const FRAME_RATE: u64 = 60;
 
     let rect_list = std::sync::Arc::new(std::sync::RwLock::new(vec![
@@ -19,10 +25,10 @@ fn overlay_test() {
 
     {
         let rect_list = rect_list.clone();
-        let mut overlay =
-            windows_ez_overlay::Overlay::new(0, 0, 1920, 1080, rect_list, FRAME_RATE, true);
         std::thread::spawn(move || {
-            overlay.window_loop().unwrap();
+            let mut overlay =
+                windows_ez_overlay::Window::new(0, 0, 1920, 1080, rect_list, true).unwrap();
+            overlay.run().unwrap();
         });
     }
 

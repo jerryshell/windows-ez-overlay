@@ -1,13 +1,23 @@
 [package]
 name = "windows-ez-overlay"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [dependencies]
-windows = { version = "*", features = [
+windows = { git = "https://github.com/microsoft/windows-rs", features = [
+    "Win32_System_Com",
+    "Win32_Graphics_Direct2D_Common",
+    "Win32_Graphics_Direct3D",
+    "Win32_Graphics_Direct3D11",
+    "Win32_Graphics_Dxgi_Common",
     "Win32_Graphics_Gdi",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Performance",
+    "Win32_System_SystemInformation",
+    "Win32_UI_Animation",
     "Win32_UI_WindowsAndMessaging",
 ] }
+windows-numerics = { git = "https://github.com/microsoft/windows-rs" }
 
 [profile.release]
 lto = true

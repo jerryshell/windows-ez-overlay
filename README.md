@@ -1,8 +1,6 @@
 # Windows EZ Overlay for Rust 🦀
 
-Windows GDI overlay written in Rust.
-
-The goal is to keep it simple and easy to use.
+Windows Direct2D overlay
 
 ## How to use
 
