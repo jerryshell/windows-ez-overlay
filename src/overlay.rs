@@ -86,13 +86,13 @@ impl Overlay {
                 None,
             )
             .map_err(|_| error::OverlayError::CreateWindowExA)?;
-            let hdc = GetDC(window);
+            let hdc = GetDC(Some(window));
             let bkcolor = GetBkColor(hdc);
             SetLayeredWindowAttributes(window, bkcolor, 0, LWA_COLORKEY)
                 .map_err(|_| error::OverlayError::SetLayeredWindowAttributes)?;
 
             let pen = CreatePen(PS_SOLID, self.pen_width, COLORREF(0xFF));
-            SelectObject(hdc, pen);
+            SelectObject(hdc, pen.into());
 
             let draw_rect_list = self.draw_rect_list.clone();
             let refresh_rect = RECT {
