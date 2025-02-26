@@ -33,14 +33,14 @@ dependencies = [
 
 [[package]]
 name = "unicode-ident"
-version = "1.0.16"
+version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a210d160f08b701c8721ba1c726c11662f877ea6b7094007e1ca9a1041945034"
+checksum = "00e2473a93778eb0bad35909dff6a10d28e63f792f16ed15e404fca9d5eeedbe"
 
 [[package]]
 name = "windows"
-version = "0.59.0"
-source = "git+https://github.com/microsoft/windows-rs#4e78b29fab6d4242648df2f72b22237e661bd9a4"
+version = "0.60.0"
+source = "git+https://github.com/microsoft/windows-rs#299d421ba55e947adc8fa647d0ff95876a9bd051"
 dependencies = [
  "windows-collections",
  "windows-core",
@@ -51,16 +51,16 @@ dependencies = [
 
 [[package]]
 name = "windows-collections"
-version = "0.1.0"
-source = "git+https://github.com/microsoft/windows-rs#4e78b29fab6d4242648df2f72b22237e661bd9a4"
+version = "0.1.1"
+source = "git+https://github.com/microsoft/windows-rs#299d421ba55e947adc8fa647d0ff95876a9bd051"
 dependencies = [
  "windows-core",
 ]
 
 [[package]]
 name = "windows-core"
-version = "0.59.0"
-source = "git+https://github.com/microsoft/windows-rs#4e78b29fab6d4242648df2f72b22237e661bd9a4"
+version = "0.60.1"
+source = "git+https://github.com/microsoft/windows-rs#299d421ba55e947adc8fa647d0ff95876a9bd051"
 dependencies = [
  "windows-implement",
  "windows-interface",
@@ -78,8 +78,8 @@ dependencies = [
 
 [[package]]
 name = "windows-future"
-version = "0.1.0"
-source = "git+https://github.com/microsoft/windows-rs#4e78b29fab6d4242648df2f72b22237e661bd9a4"
+version = "0.1.1"
+source = "git+https://github.com/microsoft/windows-rs#299d421ba55e947adc8fa647d0ff95876a9bd051"
 dependencies = [
  "windows-core",
  "windows-link",
@@ -88,7 +88,7 @@ dependencies = [
 [[package]]
 name = "windows-implement"
 version = "0.59.0"
-source = "git+https://github.com/microsoft/windows-rs#4e78b29fab6d4242648df2f72b22237e661bd9a4"
+source = "git+https://github.com/microsoft/windows-rs#299d421ba55e947adc8fa647d0ff95876a9bd051"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -98,7 +98,7 @@ dependencies = [
 [[package]]
 name = "windows-interface"
 version = "0.59.0"
-source = "git+https://github.com/microsoft/windows-rs#4e78b29fab6d4242648df2f72b22237e661bd9a4"
+source = "git+https://github.com/microsoft/windows-rs#299d421ba55e947adc8fa647d0ff95876a9bd051"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -108,12 +108,12 @@ dependencies = [
 [[package]]
 name = "windows-link"
 version = "0.1.0"
-source = "git+https://github.com/microsoft/windows-rs#4e78b29fab6d4242648df2f72b22237e661bd9a4"
+source = "git+https://github.com/microsoft/windows-rs#299d421ba55e947adc8fa647d0ff95876a9bd051"
 
 [[package]]
 name = "windows-numerics"
-version = "0.1.0"
-source = "git+https://github.com/microsoft/windows-rs#4e78b29fab6d4242648df2f72b22237e661bd9a4"
+version = "0.1.1"
+source = "git+https://github.com/microsoft/windows-rs#299d421ba55e947adc8fa647d0ff95876a9bd051"
 dependencies = [
  "windows-core",
  "windows-link",
@@ -121,16 +121,16 @@ dependencies = [
 
 [[package]]
 name = "windows-result"
-version = "0.3.0"
-source = "git+https://github.com/microsoft/windows-rs#4e78b29fab6d4242648df2f72b22237e661bd9a4"
+version = "0.3.1"
+source = "git+https://github.com/microsoft/windows-rs#299d421ba55e947adc8fa647d0ff95876a9bd051"
 dependencies = [
  "windows-link",
 ]
 
 [[package]]
 name = "windows-strings"
-version = "0.3.0"
-source = "git+https://github.com/microsoft/windows-rs#4e78b29fab6d4242648df2f72b22237e661bd9a4"
+version = "0.3.1"
+source = "git+https://github.com/microsoft/windows-rs#299d421ba55e947adc8fa647d0ff95876a9bd051"
 dependencies = [
  "windows-link",
 ]
