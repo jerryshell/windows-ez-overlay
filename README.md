@@ -1,58 +1,12 @@
 # Windows EZ Overlay for Rust 🦀
 
-Windows Direct2D overlay
+This repository is no longer maintained: the project has been merged into
+[ac-esp](https://github.com/jerryshell/ac-esp).
 
-## How to use
-
-1. Cargo.toml
-
-```toml
-windows-ez-overlay = { git = "https://github.com/jerryshell/windows-ez-overlay" }
-```
-
-2. Rust code
-
-```rust
-// init draw_rect_list, ez-overlay will draw Rectangle using draw_rect_list
-let draw_rect_list = Arc::new(RwLock::new(Vec::<RECT>::with_capacity(32)));
-
-// get target window info
-let game_window = FindWindowA(None, s!("AssaultCube"));
-let mut window_info = WINDOWINFO::default();
-GetWindowInfo(game_window, &mut window_info);
-
-// init ez-overlay with window_info and draw_rect_list
-let draw_rect_list_clone = Arc::clone(&draw_rect_list);
-std::thread::spawn(move || {
-    let mut overlay = windows_ez_overlay::Overlay::new(
-        window_info.rcClient.left,
-        window_info.rcClient.top,
-        window_info.rcClient.right,
-        window_info.rcClient.bottom,
-        draw_rect_list_clone,
-        true,
-    ).unwrap();
-    overlay.run().unwrap();
-});
-
-// ... do your stuff ...
-
-{
-    let mut draw_rect_list = draw_rect_list.write().unwrap();
-    // update draw_rect_list from here
-}
-```
-
-## Test
-
-```bash
-cargo test
-```
-
-## Example
-
-[ac-esp | AssaultCube ESP DLL with Rust 🦀](https://github.com/jerryshell/ac-esp)
+The overlay source now lives at
+[ac-esp/src/overlay.rs](https://github.com/jerryshell/ac-esp/blob/master/src/overlay.rs).
+See ac-esp for the usage example, build instructions and tests.
 
 ## License
 
-[GNU Affero General Public License v3.0](LICENSE)
+[GNU Affero General Public License v3.0](https://choosealicense.com/licenses/agpl-3.0/)
